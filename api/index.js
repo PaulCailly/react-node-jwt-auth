@@ -23,35 +23,6 @@ const users = [
 
 let refreshTokens = [];
 
-app.post("/api/refresh", (req, res) => {
-  // Take the refreshToken from the user
-  const refreshToken = req.body.token;
-
-  // Send error if there is no refreshToken or if it's invalid
-  if (!refreshToken) {
-    return res.status(401).json("You are not authenticated");
-  }
-  if (!refreshTokens.includes(refreshToken)) {
-    return res.status(403).json("Refresh token is not valid");
-  }
-
-  jwt.verify(refreshToken, "myRefreshSecretKey", (err, user) => {
-    err && console.log(err);
-    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-
-    const newAccessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
-
-    // This should be added to a DB
-    refreshTokens.push(refreshToken);
-
-    res.status(200).json({
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    });
-  });
-});
-
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id, isAdmin: user.isAdmin }, "mySecretKey", {
     expiresIn: "3600s",
@@ -103,6 +74,35 @@ const verify = (req, res, next) => {
     res.status(401).json("You are not authenticated");
   }
 };
+
+app.post("/api/refresh", (req, res) => {
+  // Take the refreshToken from the user
+  const refreshToken = req.body.token;
+
+  // Send error if there is no refreshToken or if it's invalid
+  if (!refreshToken) {
+    return res.status(401).json("You are not authenticated");
+  }
+  if (!refreshTokens.includes(refreshToken)) {
+    return res.status(403).json("Refresh token is not valid");
+  }
+
+  jwt.verify(refreshToken, "myRefreshSecretKey", (err, user) => {
+    err && console.log(err);
+    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+
+    // This should be added to a DB
+    refreshTokens.push(refreshToken);
+
+    res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  });
+});
 
 app.delete("/api/users/:userId", verify, (req, res) => {
   if (req.user.id === req.params.userId || req.user.isAdmin) {
