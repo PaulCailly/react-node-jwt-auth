@@ -2,9 +2,14 @@ import "./App.css";
 import axios from "axios";
 import { useState } from "react";
 import jwt_decode from "jwt-decode";
+import Cookies from "js-cookie";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const persistedUser = Cookies.get("user")
+    ? JSON.parse(Cookies.get("user"))
+    : null;
+
+  const [user, setUser] = useState(persistedUser);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -52,6 +57,7 @@ function App() {
         { username, password }
       );
       setUser(res.data);
+      Cookies.set("user", JSON.stringify(res.data));
     } catch (err) {
       console.log(err);
     }
@@ -73,6 +79,24 @@ function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await axiosJWT.post(
+        `${process.env.REACT_APP_AUTH_SERVER}/api/logout`,
+        {
+          token: user.refreshToken,
+        },
+        {
+          headers: { authorization: "Bearer " + user.accessToken },
+        }
+      );
+      setUser(null);
+      Cookies.delete("user");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="container">
       {user ? (
@@ -87,6 +111,10 @@ function App() {
           </button>
           <button className="deleteButton" onClick={() => handleDelete(2)}>
             Delete Ovidiu
+          </button>
+
+          <button className="logoutButton" onClick={handleLogout}>
+            Logout
           </button>
           {error && (
             <span className="error">

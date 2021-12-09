@@ -73,6 +73,19 @@ input:focus {
   background-color: #fad4d7;
 }
 
+.logoutButton {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #fff0f1;
+  color: #d95087;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background-color: #fad4d7;
+}
+
 .error {
   font-size: 12px;
   color: crimson;
