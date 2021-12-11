@@ -68,7 +68,7 @@ function App() {
     setError(false);
     try {
       await axiosJWT.delete(
-        `${process.env.REACT_APP_AUTH_SERVER}/api/users/` + id,
+        `${process.env.REACT_APP_API_SERVER}/api/users/` + id,
         {
           headers: { authorization: "Bearer " + user.accessToken },
         }
